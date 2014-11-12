@@ -7,37 +7,36 @@
  */
 /*jshint es5:true*/
 module.exports = function(grunt) {
-  var Q = require('q');
+  var Promise = require('bluebird');
   var lpad = require('lpad');
 
   function spawn(task) {
-    var deferred = Q.defer();
+    return new Promise(function(resolve, reject) {
+      grunt.util.spawn(task, function(error, result, code) {
+        grunt.log.writeln();
+        lpad.stdout('    ');
 
-    grunt.util.spawn(task, function(error, result, code) {
-      grunt.log.writeln();
-      lpad.stdout('    ');
+        if (error || code !== 0) {
+          var message = result.stderr || result.stdout;
 
-      if (error || code !== 0) {
-        var message = result.stderr || result.stdout;
+          grunt.log.error(message);
+          lpad.stdout();
 
-        grunt.log.error(message);
+          return reject();
+        }
+
+        grunt.log.writeln(result);
         lpad.stdout();
-        
-        return deferred.reject();
-      }
 
-      grunt.log.writeln(result);
-      lpad.stdout();
-
-      deferred.resolve();
+        resolve();
+      });
     });
-
-    return deferred.promise;
   }
 
   grunt.registerMultiTask('parallel', 'Run sub-tasks in parallel.', function() {
     var done = this.async();
     var options = this.options({
+      concurrency: 0,
       grunt: false,
       stream: false 
     });
@@ -78,6 +77,12 @@ module.exports = function(grunt) {
       });
     }
 
-    Q.all(this.data.tasks.map(spawn)).then(done, done.bind(this, false));
+    var concurrencyOptions;
+    if (options.concurrency) {
+      concurrencyOptions = {
+        concurrency: options.concurrency
+      };
+    }
+    Promise.map(this.data.tasks, spawn, concurrencyOptions).then(done, done.bind(this, false));
   });
 };
