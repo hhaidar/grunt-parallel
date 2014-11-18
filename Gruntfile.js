@@ -46,6 +46,13 @@ module.exports = function(grunt) {
         },
         tasks: ['fast', 'block', 'fast']
       },
+      concurrency: {
+        options: {
+          grunt: true,
+          concurrency: 2
+        },
+        tasks: ['block', 'block', 'block', 'block', 'block']
+      },
       stream: {
         options: {
           stream: true

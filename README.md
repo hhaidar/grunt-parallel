@@ -119,6 +119,25 @@ grunt.initConfig({
 
 One might target the task using `grunt parallel:assets`. This would run compass, requirejs, and a custom shell script at the same time, each logging to your console when they are done.
 
+#### Limit concurrency
+
+If you want to limit the number of concurrently running grunt tasks you can use `concurrency: count` in your tasks configuration and grunt-parallel will limit the concurrency permitted. By default, all tasks will run in parallel.
+
+```javascript
+grunt.initConfig({
+  parallel: {
+    assets: {
+      options: {
+        concurrency: 2
+      },
+      tasks: ['fast', 'block', 'fast']
+    }
+  }
+});
+```
+
+One might target the task using `grunt parallel:assets`. This would run compass, requirejs, and a custom shell script at the same time, each logging to your console when they are done, with no more than 2 running concurrently.
+
 ## License
 Copyright (c) 2013 Merrick Christensen
 Licensed under the MIT license.
