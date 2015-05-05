@@ -9,6 +9,7 @@
 module.exports = function(grunt) {
   var Promise = require('bluebird');
   var lpad = require('lpad');
+  var throat = require('throat');
 
   function spawn(task) {
     return new Promise(function(resolve, reject) {
@@ -86,5 +87,6 @@ module.exports = function(grunt) {
       };
     }
     Promise.map(this.data.tasks, spawn, concurrencyOptions).then(done, done.bind(this, false));
+
   });
 };
